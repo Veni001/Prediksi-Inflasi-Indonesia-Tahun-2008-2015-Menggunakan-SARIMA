@@ -1,2 +1,2 @@
-# Prediksi-Inflasi-Indonesia-Tahun-2008-2015-Menggunakan-SARIMA
-Project ini menerapkan metode SARIMA dalam memprediksi nilai inflasi di Indonesia pada tahun 2008-2015
+# Prediksi Inflasi Indonesia Tahun 2008-2015 Menggunakan SARIMA
+Proyek ini menerapkan metode SARIMA untuk memprediksi nilai inflasi Indonesia menggunakan data tahun 2008–2015. Model ARIMA (1,0,0)(0,1,0)[12] digunakan untuk menghasilkan prakiraan inflasi selama tiga bulan ke depan, yaitu Januari, Februari, dan Maret 2016, dengan hasil berturut-turut sebesar 0.2216686, 0.0351222, dan 0.1271633. Jika dibandingkan dengan data aktual dari BPS yang mencatat inflasi sebesar 0.15, 0.6, dan 0.3 pada periode yang sama, hasil prediksi menunjukkan kedekatan nilai meskipun terdapat sedikit selisih. Hal ini menunjukkan bahwa model SARIMA cukup efektif dalam memprediksi tren inflasi jangka pendek di Indonesia.
