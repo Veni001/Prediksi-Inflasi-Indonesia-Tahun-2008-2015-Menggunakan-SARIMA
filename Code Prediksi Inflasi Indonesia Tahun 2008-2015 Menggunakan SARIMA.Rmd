@@ -1,0 +1,206 @@
+---
+title: "ADW"
+author: "Kelompok 8"
+date: "2023-11-03"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+Kelompok 8
+
+1. Balqis Dwian Fitri Zamzami_121450018
+
+2. Ericson Chandra Sihombing_121450026
+
+3. Veni Zahara Kartika_121450075
+
+4. Christian Arvianus Nathanael Biran_121450112
+```{r}
+library(knitr)
+library(kableExtra)
+# create a data frame
+anggota <- data.frame(NIM = c(121450018, 121450026, 121450075, 121450112),
+ NAMA = c("Balqis Dwian Fitri Zamzami", "Ericson Chandra Sihombing",
+ "Veni Zahara Kartika", "Christian Arvianus Nathanael Biran"))
+# print the table using kableExtra
+kable(anggota) %>%
+ kable_styling(full_width = FALSE)
+```
+
+
+```{r}
+library(readxl)
+library(forecast)
+library(tseries)
+library(TTR)
+library(TSA)
+library(EnvStats)
+library(bayesforecast)
+library(ggplot2)
+```
+
+
+```{r}
+df <- read_excel("D:/ITERA/Semester 5/ADW/SARIMA/Copy of indo_03_1(1).xls")
+head(df)
+```
+
+
+```{r}
+tsy <- ts(df$Pengamatan, start = (2008), frequency=12)
+tsyN <- as.numeric(tsy)
+tsyN
+```
+
+```{r}
+plot.ts(tsy,
+ col = "blue",
+ lwd = 1,
+ type = "o",
+ xlab = "Periode",
+ ylab = "Pengamatan",
+ main = "Time Series Plot Periode 2008 - 2015")
+```
+
+```{r}
+plot.ts(tsy)
+```
+
+```{r}
+#Uji stasioneritas
+adf.test(tsy)
+```
+
+
+```{r}
+acf <- acf(tsyN, main = "Grafik ACF", lag.max = 90)
+acf
+```
+
+```{r}
+pacf <- pacf(tsyN, main = "Grafik PACF", lag.max = 90)
+pacf
+```
+
+```{r}
+#Cek nilai lambda
+lambda=BoxCox.lambda(tsy)
+lambda
+boxcox(tsyN)
+```
+
+```{r}
+#Transformasi data berdasarkan nilai lambda
+data= (sqrt(tsy))
+data
+```
+
+```{r}
+# Cek nilai lambda setelah transformasi
+lambda=BoxCox.lambda(data)
+lambda
+```
+
+
+```{r}
+# Cek statsioner mean dan varians setelah transformasi
+acf(data, main = "Grafik ACF Setelah Transformasi", lag.max=50) 
+```
+
+```{r}
+pacf(data, main = "Grafik PACF Setelah Transformasi", lag.max=50) 
+```
+
+```{r}
+plot.ts(data,
+ col = "blue",
+ lwd = 1,
+ type = "o",
+ xlab = "Periode",
+ ylab = "Pengamatan",
+ main = "Time Series Plot Periode 2008 - 2015")
+```
+
+```{r}
+adf.test(data)
+```
+
+
+```{r}
+# differencing
+y.dif1 = diff(data, differences = 1)
+plot.ts(y.dif1, lty=1, xlab="waktu", ylab="Data Y.Diff Ordo 1")
+points(y.dif1)
+```
+
+```{r}
+adf.test(diff(y.dif1))
+```
+
+# Auto Arima
+```{r}
+sarimaAP1 <- auto.arima(y.dif1, trace=TRUE, ic="aic")
+sarimaAP1
+```
+
+```{r}
+forecastAP1 <- forecast(sarimaAP1, level = c(95), h = 3)
+forecastAP1
+```
+
+```{r}
+autoplot(forecastAP1, main = 'Hasil Prediksi dari Model')
+```
+
+
+Hasil dari forecesting menggunakan metode auto.arima pada 3 bulan kedepan yakni bulan Januari, Februari, dan Maret tahun 2016 memiliki nilai inflasi sebesar 0.1884044, 0.2014138, dan 0.1756712. Jika dibandingkan dengan data pada BPS bulan Januari, Februari, dan Maret tahun 2016 yang memiliki nilai inflasi sebesar 0.15, 0.6, dan 0.3 tidak jauh berbeda dengan hasil prediksi menggunakan model ARIMA (0,0,2)(0,1,1)[12]. 
+
+
+## Diagnosa Model dengan Auto Arima
+```{r}
+library(ggfortify)
+ggtsdiag(sarimaAP1)
+```
+```{r}
+#Asumsi residual
+#Pengujian Non Autokorelasi
+resY1=residuals(sarimaAP1)
+wnY=Box.test(resY1, type=c("Ljung-Box"))
+wnY
+```
+memenuhi asumsi non autokorelasi, dikarenakan p-value > 0.05 sehingga H0 diterima. Berdasarkan hasil dari pengujian asumsi residual yaitu
+white noise dan distribusi normal didapatkan hasil bahwa residual data telah bersifat white noise dan berdistribusi normal.
+
+```{r}
+#Pengujian Normalitas
+nY1=length(resY1)
+sdY1=sd(resY1)
+resnY1=rnorm(nY1,0,sdY1)
+ks.test(resY1,resnY1)
+```
+memenuhi asumsi kenormalan residual karena p-value > 0.05.
+
+```{r}
+#Pengujian Homoskedastisitas
+Box.test(resY1^2, type=c("Ljung-Box"))
+```
+memenuhi asumsi Homoskedastisitas karena p-value lebih besar dari 0.05.
+
+```{r}
+checkresiduals(sarimaAP1, plot=T)
+```
+```{r}
+library(astsa)
+model_astsa <- sarima(tsy, 0,0,2,0,1,1,12)
+```
+```{r}
+model_astsa
+```
+```{r}
+model_astsa2 <- sarima(tsy, 1,0,0,0,1,0,12)
+```
+```{r}
+model_astsa2
+```
+
